@@ -185,7 +185,7 @@ function Human(
 
 var healthyPeople = [];
 //						  #of rad spe srad ran sprRad recoverTime
-var people = createPeople(1000, 4, 18, 12, 10, false, 10000);
+var people = createPeople(1000, 4, 18, 12, 40, false, 10000);
 people[0].getDisease();
 
 var lastUpdate = Date.now();
@@ -199,7 +199,9 @@ function tick() {
 	lastUpdate = now;
 
 	updateGame(dt);
-	updateLiveInfo();
+	if (update) {
+		updateLiveInfo();
+	}
 }
 
 function createPeople(
@@ -278,7 +280,10 @@ function updateLiveInfo() {
 
 function chartUpdate() {
 	window.setInterval(function () {
-		if (document.getElementById("sickCount").innerHTML !== "(0)") {
+		if (
+			document.getElementById("sickCount").innerHTML !== "(0)" &&
+			update
+		) {
 			document.getElementById("days").innerHTML =
 				parseInt(document.getElementById("days").innerHTML) +
 				1 +
@@ -292,53 +297,57 @@ function chartUpdate() {
 	}, 1000);
 
 	window.setInterval(function () {
-		chart.data.datasets.forEach((dataset) => {
-			if (dataset.label === "Healthy") {
-				dataset.data.push(
-					healthyPeople.length +
-						people.length -
-						healthyPeople.length -
-						people.filter((human) => human.status === 2).length
-				);
-			} else if (dataset.label === "Sick") {
-				dataset.data.push(
-					people.length -
-						healthyPeople.length -
-						people.filter((human) => human.status === 2).length
-				);
-			} else if (dataset.label === "Recovered") {
-				dataset.data.push(
-					people.filter((human) => human.status === 2).length +
+		if (update) {
+			chart.data.datasets.forEach((dataset) => {
+				if (dataset.label === "Healthy") {
+					dataset.data.push(
 						healthyPeople.length +
+							people.length -
+							healthyPeople.length -
+							people.filter((human) => human.status === 2).length
+					);
+				} else if (dataset.label === "Sick") {
+					dataset.data.push(
 						people.length -
-						healthyPeople.length -
-						people.filter((human) => human.status === 2).length
-				);
+							healthyPeople.length -
+							people.filter((human) => human.status === 2).length
+					);
+				} else if (dataset.label === "Recovered") {
+					dataset.data.push(
+						people.filter((human) => human.status === 2).length +
+							healthyPeople.length +
+							people.length -
+							healthyPeople.length -
+							people.filter((human) => human.status === 2).length
+					);
+				}
+			});
+			chart.data.labels.push("");
+			if (document.getElementById("sickCount").innerHTML !== "(0)") {
+				chart.update();
 			}
-		});
-		chart.data.labels.push("");
-		if (document.getElementById("sickCount").innerHTML !== "(0)") {
-			chart.update();
 		}
 	}, 333.333);
 
 	window.setInterval(function () {
-		chartTwo.data.datasets.forEach((dataset) => {
-			if (dataset.label === "Healthy") {
-				dataset.data.push(healthyPeople.length);
-			} else if (dataset.label === "Sick") {
-				dataset.data.push(
-					people.filter((human) => human.status === 1).length
-				);
-			} else if (dataset.label === "Recovered") {
-				dataset.data.push(
-					people.filter((human) => human.status === 2).length
-				);
+		if (update) {
+			chartTwo.data.datasets.forEach((dataset) => {
+				if (dataset.label === "Healthy") {
+					dataset.data.push(healthyPeople.length);
+				} else if (dataset.label === "Sick") {
+					dataset.data.push(
+						people.filter((human) => human.status === 1).length
+					);
+				} else if (dataset.label === "Recovered") {
+					dataset.data.push(
+						people.filter((human) => human.status === 2).length
+					);
+				}
+			});
+			chartTwo.data.labels.push("");
+			if (document.getElementById("sickCount").innerHTML !== "(0)") {
+				chartTwo.update();
 			}
-		});
-		chartTwo.data.labels.push("");
-		if (document.getElementById("sickCount").innerHTML !== "(0)") {
-			chartTwo.update();
 		}
 	}, 50);
 }
