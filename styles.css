@@ -141,3 +141,17 @@ h3 {
 	width: 95%;
 	height: 48%;
 }
+
+button {
+	border: 1px solid #737373;
+	background-color: #303030;
+	color: #c7c7c7;
+	margin-left: 15px;
+	margin-top: 15px;
+	font-family: "Ubuntu", sans-serif;
+	margin-right: 0px;
+}
+
+button:active {
+	background-color: #777777;
+}

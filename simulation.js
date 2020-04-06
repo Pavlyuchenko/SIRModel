@@ -17,6 +17,25 @@ function handleResize() {
 
 handleResize(); // First draw
 
+var Timer = function (callback, delay) {
+	var timerId,
+		start,
+		remaining = delay;
+
+	this.pause = function () {
+		window.clearTimeout(timerId);
+		remaining -= Date.now() - start;
+	};
+
+	this.resume = function () {
+		start = Date.now();
+		window.clearTimeout(timerId);
+		timerId = window.setTimeout(callback, remaining);
+	};
+
+	this.resume();
+};
+
 function Human(
 	x, // Spawning on x axis
 	y, // Spawning on y axis
@@ -45,12 +64,33 @@ function Human(
 	this.status = 0; // 0 === Healthy ; 1 === Sick ; 2 === Cured / Dead
 
 	let tthis = this;
+	this.timer;
+	this.timerRunning = true;
+
+	this.stopTimer = function () {
+		if (this.timerRunning) {
+			this.timer.pause();
+			this.timerRunning = false;
+		} else {
+			this.timer.resume();
+			this.timerRunning = true;
+		}
+	};
 
 	this.cureInt = function () {
-		window.setTimeout(function () {
+		/*window.setTimeout(function () {
 			people[people.indexOf(tthis)].color = "#616161";
 			tthis.status = 2;
+		}, tthis.recoverTime);*/
+		tthis.timer = new Timer(function () {
+			people[people.indexOf(tthis)].color = "#616161";
+			tthis.status = 2;
+			clearInterval(tthis.visInt);
 		}, tthis.recoverTime);
+
+		tthis.visInt = window.setInterval(function () {
+			tthis.visited = [];
+		}, 1000);
 	};
 
 	this.getDisease = function () {
@@ -95,33 +135,36 @@ function Human(
 	};
 
 	this.move = function (dt) {
-		this.x += this.dx * this.direction.x * dt;
-		this.y += this.dy * this.direction.y * dt;
+		if (update) {
+			this.x += this.dx * this.direction.x * dt;
+			this.y += this.dy * this.direction.y * dt;
+		}
 	};
 
 	this.spreadDisease = function () {
-		for (let i = 0; i < healthyPeople.length; i++) {
-			human = healthyPeople[i];
-			if (
-				this.x + this.spreadRad >= human.x &&
-				this.x - this.spreadRad <= human.x &&
-				this.y + this.spreadRad >= human.y &&
-				this.y - this.spreadRad <= human.y
-			) {
-				if (!this.visited.includes(human)) {
-					this.spreadChance = Math.floor(
-						Math.random() * 10 // - this.randomness / 10)
-					);
-					console.log(this.spreadChance);
-					if (this.spreadChance < this.randomness / 10) {
-						human.getDisease();
+		if (update) {
+			for (let i = 0; i < healthyPeople.length; i++) {
+				human = healthyPeople[i];
+				if (
+					this.x + this.spreadRad >= human.x &&
+					this.x - this.spreadRad <= human.x &&
+					this.y + this.spreadRad >= human.y &&
+					this.y - this.spreadRad <= human.y
+				) {
+					if (!this.visited.includes(human)) {
+						this.spreadChance = Math.floor(
+							Math.random() * 10 // - this.randomness / 10)
+						);
+						if (this.spreadChance < this.randomness / 10) {
+							human.getDisease();
+						}
 					}
-				}
 
-				this.visited.push(human);
-			} else {
-				if (this.visited.includes(human)) {
-					this.visited.splice(this.visited.indexOf(human), 1);
+					this.visited.push(human);
+				} else {
+					if (this.visited.includes(human)) {
+						this.visited.splice(this.visited.indexOf(human), 1);
+					}
 				}
 			}
 		}
@@ -142,7 +185,7 @@ function Human(
 
 var healthyPeople = [];
 //						  #of rad spe srad ran sprRad recoverTime
-var people = createPeople(1000, 4, 18, 15, 10, false, 10000);
+var people = createPeople(1000, 4, 18, 12, 10, false, 10000);
 people[0].getDisease();
 
 var lastUpdate = Date.now();
@@ -298,6 +341,23 @@ function chartUpdate() {
 			chartTwo.update();
 		}
 	}, 50);
+}
+
+function socialDistancing() {
+	console.log("Hey");
+}
+
+var update = true;
+
+function stopSimulation() {
+	update = !update;
+	for (
+		let i = 0;
+		i < people.filter((human) => human.status === 1).length;
+		i++
+	) {
+		people.filter((human) => human.status === 1)[i].stopTimer();
+	}
 }
 
 chartUpdate();
