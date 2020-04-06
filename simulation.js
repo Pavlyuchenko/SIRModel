@@ -78,26 +78,19 @@ function Human(
 	};
 
 	this.checkCollisions = function () {
-		if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
-			this.dx = -this.dx;
-		}
-
 		if (this.x + this.radius > canvas.width) {
 			this.x -= 1;
-		}
-		if (this.x - this.radius < 0) {
+			this.dx = -this.dx;
+		} else if (this.x - this.radius < 0) {
 			this.x += 1;
+			this.dx = -this.dx;
 		}
-
-		if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
-			this.dy = -this.dy;
-		}
-
 		if (this.y + this.radius > canvas.height) {
 			this.y -= 1;
-		}
-		if (this.y - this.radius < 0) {
+			this.dy = -this.dy;
+		} else if (this.y - this.radius < 0) {
 			this.y += 1;
+			this.dy = -this.dy;
 		}
 	};
 
@@ -117,10 +110,10 @@ function Human(
 			) {
 				if (!this.visited.includes(human)) {
 					this.spreadChance = Math.floor(
-						Math.random() * (10 - this.randomness / 10)
-					).toString();
-
-					if (this.spreadChance === "0") {
+						Math.random() * 10 // - this.randomness / 10)
+					);
+					console.log(this.spreadChance);
+					if (this.spreadChance < this.randomness / 10) {
 						human.getDisease();
 					}
 				}
@@ -149,7 +142,7 @@ function Human(
 
 var healthyPeople = [];
 //						  #of rad spe srad ran sprRad recoverTime
-var people = createPeople(1000, 4, 18, 15, 40, false, 10000);
+var people = createPeople(1000, 4, 18, 15, 10, false, 10000);
 people[0].getDisease();
 
 var lastUpdate = Date.now();
