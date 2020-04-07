@@ -1,3 +1,5 @@
+asdasdasd;
+
 var canvas = document.getElementById("canv"); // Canvas element
 var viewportOffset = canvas.getBoundingClientRect(); // The CSS properties
 var c = canvas.getContext("2d"); // The drawing plane
@@ -113,7 +115,7 @@ function Human(
 
 		tthis.visInt = window.setInterval(function () {
 			tthis.visited = [];
-		}, 1000);
+		}, 1500);
 	};
 
 	this.getDisease = function () {
@@ -230,10 +232,9 @@ function Human(
 		this.checkCollisions();
 		if (update) {
 			this.move(dt);
-
-			if (this.status.toString() === "1") {
-				this.spreadDisease();
-			}
+		}
+		if (this.status.toString() === "1") {
+			this.spreadDisease();
 		}
 		if (socialDist) {
 			this.distance(dt);
@@ -245,7 +246,7 @@ function Human(
 
 var healthyPeople = [];
 //						  #of rad spe srad ran sprRad recoverTime
-var people = createPeople(700, 4, 18, 21, 40, true, 10000);
+var people = createPeople(700, 4, 18, 15, 20, true, 10000);
 people[0].getDisease();
 
 var lastUpdate = Date.now();
