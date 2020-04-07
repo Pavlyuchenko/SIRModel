@@ -3,6 +3,7 @@ var viewportOffset = canvas.getBoundingClientRect(); // The CSS properties
 var c = canvas.getContext("2d"); // The drawing plane
 
 window.addEventListener("resize", handleResize);
+
 function handleResize() {
 	if (innerWidth < 1345) {
 		var w = window.innerWidth / 1.4;
@@ -16,6 +17,28 @@ function handleResize() {
 }
 
 handleResize(); // First draw
+
+window.addEventListener("blur", function () {
+	update = false;
+	for (
+		let i = 0;
+		i < people.filter((human) => human.status === 1).length;
+		i++
+	) {
+		people.filter((human) => human.status === 1)[i].stopTimer();
+	}
+});
+
+window.addEventListener("focus", function () {
+	update = true;
+	for (
+		let i = 0;
+		i < people.filter((human) => human.status === 1).length;
+		i++
+	) {
+		people.filter((human) => human.status === 1)[i].stopTimer();
+	}
+});
 
 var Timer = function (callback, delay) {
 	var timerId,
@@ -135,36 +158,69 @@ function Human(
 	};
 
 	this.move = function (dt) {
-		if (update) {
-			this.x += this.dx * this.direction.x * dt;
-			this.y += this.dy * this.direction.y * dt;
+		this.x += this.dx * this.direction.x * dt;
+		this.y += this.dy * this.direction.y * dt;
+	};
+
+	this.distance = function (dt) {
+		let closestDist = Infinity;
+		let closestHuman = null;
+		for (let i = 0; i < people.length; i++) {
+			let human = people[i];
+			if (human !== this) {
+				let xDist = Math.abs(this.x - human.x);
+				let yDist = Math.abs(this.y - human.y);
+
+				let dist = Math.sqrt(xDist * xDist + yDist * yDist);
+
+				if (dist < closestDist) {
+					closestDist = dist;
+					closestHuman = human;
+				}
+			}
+		}
+
+		let xCord = closestHuman.x - this.x;
+		let yCord = closestHuman.y - this.y;
+
+		let maxDist = 0;
+		let moveSpeed = 0.4;
+
+		if (xCord < -maxDist && this.x + this.radius < canvas.width) {
+			this.x += moveSpeed;
+		} else if (xCord > maxDist && this.x - this.radius > 0) {
+			this.x -= moveSpeed;
+		}
+
+		if (yCord < -maxDist && this.y + this.radius < canvas.height) {
+			this.y += moveSpeed;
+		} else if (yCord > maxDist && this.y - this.radius > 0) {
+			this.y -= moveSpeed;
 		}
 	};
 
 	this.spreadDisease = function () {
-		if (update) {
-			for (let i = 0; i < healthyPeople.length; i++) {
-				human = healthyPeople[i];
-				if (
-					this.x + this.spreadRad >= human.x &&
-					this.x - this.spreadRad <= human.x &&
-					this.y + this.spreadRad >= human.y &&
-					this.y - this.spreadRad <= human.y
-				) {
-					if (!this.visited.includes(human)) {
-						this.spreadChance = Math.floor(
-							Math.random() * 10 // - this.randomness / 10)
-						);
-						if (this.spreadChance < this.randomness / 10) {
-							human.getDisease();
-						}
+		for (let i = 0; i < healthyPeople.length; i++) {
+			human = healthyPeople[i];
+			if (
+				this.x + this.spreadRad >= human.x &&
+				this.x - this.spreadRad <= human.x &&
+				this.y + this.spreadRad >= human.y &&
+				this.y - this.spreadRad <= human.y
+			) {
+				if (!this.visited.includes(human)) {
+					this.spreadChance = Math.floor(
+						Math.random() * 10 // - this.randomness / 10)
+					);
+					if (this.spreadChance < this.randomness / 10) {
+						human.getDisease();
 					}
+				}
 
-					this.visited.push(human);
-				} else {
-					if (this.visited.includes(human)) {
-						this.visited.splice(this.visited.indexOf(human), 1);
-					}
+				this.visited.push(human);
+			} else {
+				if (this.visited.includes(human)) {
+					this.visited.splice(this.visited.indexOf(human), 1);
 				}
 			}
 		}
@@ -172,11 +228,15 @@ function Human(
 
 	this.update = function (dt) {
 		this.checkCollisions();
+		if (update) {
+			this.move(dt);
 
-		this.move(dt);
-
-		if (this.status.toString() === "1") {
-			this.spreadDisease();
+			if (this.status.toString() === "1") {
+				this.spreadDisease();
+			}
+		}
+		if (socialDist) {
+			this.distance(dt);
 		}
 
 		this.draw();
@@ -185,7 +245,7 @@ function Human(
 
 var healthyPeople = [];
 //						  #of rad spe srad ran sprRad recoverTime
-var people = createPeople(1000, 4, 18, 12, 40, false, 10000);
+var people = createPeople(700, 4, 18, 21, 40, true, 10000);
 people[0].getDisease();
 
 var lastUpdate = Date.now();
@@ -352,8 +412,10 @@ function chartUpdate() {
 	}, 50);
 }
 
+var socialDist = false;
+
 function socialDistancing() {
-	console.log("Hey");
+	socialDist = !socialDist;
 }
 
 var update = true;
