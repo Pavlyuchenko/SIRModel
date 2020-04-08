@@ -1,5 +1,3 @@
-asdasdasd;
-
 var canvas = document.getElementById("canv"); // Canvas element
 var viewportOffset = canvas.getBoundingClientRect(); // The CSS properties
 var c = canvas.getContext("2d"); // The drawing plane
@@ -143,14 +141,14 @@ function Human(
 	};
 
 	this.checkCollisions = function () {
-		if (this.x + this.radius > canvas.width) {
+		if (this.x + this.radius > canvas.width / 2) {
 			this.x -= 1;
 			this.dx = -this.dx;
 		} else if (this.x - this.radius < 0) {
 			this.x += 1;
 			this.dx = -this.dx;
 		}
-		if (this.y + this.radius > canvas.height) {
+		if (this.y + this.radius > canvas.height / 2) {
 			this.y -= 1;
 			this.dy = -this.dy;
 		} else if (this.y - this.radius < 0) {
@@ -232,10 +230,12 @@ function Human(
 		this.checkCollisions();
 		if (update) {
 			this.move(dt);
+
+			if (this.status.toString() === "1") {
+				// this.spreadDisease();
+			}
 		}
-		if (this.status.toString() === "1") {
-			this.spreadDisease();
-		}
+
 		if (socialDist) {
 			this.distance(dt);
 		}
