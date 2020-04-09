@@ -67,7 +67,9 @@ function Human(
 	spreadRadius, // Radius, over which the disease can be spread
 	drawSpread, // Do you want to draw the spreadRadius?
 	randomness, // Chance of infecting other people, in %
-	recoverTime // How long it takes to be cured
+	recoverTime, // How long it takes to be cured
+	yTop,
+	yBottom
 ) {
 	this.x = x;
 	this.y = y;
@@ -85,6 +87,9 @@ function Human(
 	this.drawSpread = drawSpread;
 	this.recoverTime = recoverTime;
 	this.status = 0; // 0 === Healthy ; 1 === Sick ; 2 === Cured / Dead
+
+	this.yTop = yTop;
+	this.yBottom = yBottom;
 
 	let tthis = this;
 	this.timer;
@@ -111,9 +116,9 @@ function Human(
 			clearInterval(tthis.visInt);
 		}, tthis.recoverTime);
 
-		tthis.visInt = window.setInterval(function () {
+		/*tthis.visInt = window.setInterval(function () {
 			tthis.visited = [];
-		}, 1500);
+		}, 1500);*/
 	};
 
 	this.getDisease = function () {
@@ -131,24 +136,24 @@ function Human(
 		c.fillStyle = this.color;
 		c.fill();
 
-		if (this.drawSpread && this.status.toString() === "1") {
+		/*if (this.drawSpread && this.status.toString() === "1") {
 			c.beginPath();
 			c.arc(this.x, this.y, this.spreadRad, 0, Math.PI * 2, true);
 			c.strokeStyle = "rgba(198, 40, 40, 1)";
 			c.lineWidth = 3.5;
 			c.stroke();
-		}
+		}*/
 	};
 
 	this.checkCollisions = function () {
-		if (this.x + this.radius > canvas.width / 2) {
+		if (this.x + this.radius > canvas.width) {
 			this.x -= 1;
 			this.dx = -this.dx;
 		} else if (this.x - this.radius < 0) {
 			this.x += 1;
 			this.dx = -this.dx;
 		}
-		if (this.y + this.radius > canvas.height / 2) {
+		if (this.y + this.radius > canvas.height) {
 			this.y -= 1;
 			this.dy = -this.dy;
 		} else if (this.y - this.radius < 0) {
@@ -226,19 +231,37 @@ function Human(
 		}
 	};
 
+	this.multCitiesCollisions = function () {
+		if (this.x + this.radius > canvas.width) {
+			this.x -= 1;
+			this.dx = -this.dx;
+		} else if (this.x - this.radius < 0) {
+			this.x += 1;
+			this.dx = -this.dx;
+		}
+		if (this.y + this.radius > this.yTop) {
+			this.y -= 1;
+			this.dy = -this.dy;
+		} else if (this.y - this.radius < this.yBottom) {
+			this.y += 1;
+			this.dy = -this.dy;
+		}
+	};
+
 	this.update = function (dt) {
-		this.checkCollisions();
+		//this.checkCollisions();
+		this.multCitiesCollisions();
 		if (update) {
 			this.move(dt);
 
 			if (this.status.toString() === "1") {
-				// this.spreadDisease();
+				this.spreadDisease();
 			}
 		}
 
-		if (socialDist) {
+		/*if (socialDist) {
 			this.distance(dt);
-		}
+		}*/
 
 		this.draw();
 	};
@@ -246,8 +269,9 @@ function Human(
 
 var healthyPeople = [];
 //						  #of rad spe srad ran sprRad recoverTime
-var people = createPeople(700, 4, 18, 15, 20, true, 10000);
+var people = createPeople(700, 4, 12, 10, 100, false, 8000, 2);
 people[0].getDisease();
+people[people.length - 1].getDisease();
 
 var lastUpdate = Date.now();
 var now = 0;
@@ -263,6 +287,18 @@ function tick() {
 	if (update) {
 		updateLiveInfo();
 	}
+
+	c.beginPath();
+	c.moveTo(0, canvas.height / 2 - 40);
+	c.lineTo(canvas.width, canvas.height / 2 - 40);
+	c.strokeStyle = "#737373";
+	c.stroke();
+
+	c.beginPath();
+	c.moveTo(0, canvas.height / 2 + 40);
+	c.lineTo(canvas.width, canvas.height / 2 + 40);
+	c.strokeStyle = "#737373";
+	c.stroke();
 }
 
 function createPeople(
@@ -272,24 +308,54 @@ function createPeople(
 	sprRad,
 	randomness,
 	drawSpread,
-	recoverSpeed
+	recoverSpeed,
+	citiesCount
 ) {
 	let people = [];
-	for (let i = 0; i < count; i++) {
-		x = Math.random() * (canvas.width - 4 - radius * 2) + radius;
-		y = Math.random() * (canvas.height - 4 - radius * 2) + radius;
-		people.push(
-			new Human(
-				x,
-				y,
-				radius,
-				speed,
-				sprRad,
-				drawSpread,
-				randomness,
-				recoverSpeed
-			)
-		);
+	if (citiesCount.toString() === "1") {
+		for (let i = 0; i < count; i++) {
+			x = Math.random() * (canvas.width - 4 - radius * 2) + radius;
+			y = Math.random() * (canvas.height - 4 - radius * 2) + radius;
+			people.push(
+				new Human(
+					x,
+					y,
+					radius,
+					speed,
+					sprRad,
+					drawSpread,
+					randomness,
+					recoverSpeed
+				)
+			);
+		}
+	} else if (citiesCount.toString() === "2") {
+		for (let j = 1; j <= 2; j++) {
+			for (let i = 0; i < count; i++) {
+				x = Math.random() * (canvas.width - 4 - radius * 2) + radius;
+				if (j.toString() === "1") {
+					y = Math.random() * (canvas.height - 80 - radius * 2);
+				} else {
+					y = Math.random() * (canvas.height - 80 - radius * 2);
+				}
+
+				people.push(
+					new Human(
+						x,
+						y / 2 + (canvas.height / 2) * (j - 1) + 40 * (j - 1),
+						radius,
+						speed,
+						sprRad,
+						drawSpread,
+						randomness,
+						recoverSpeed,
+
+						canvas.height / (3 - j) - 40 * (2 - j),
+						(canvas.height / 2) * (j - 1) + 40 * (j - 1)
+					)
+				);
+			}
+		}
 	}
 	healthyPeople = people.slice(0, people.length);
 	return people;
