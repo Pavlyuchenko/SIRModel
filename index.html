@@ -1,76 +1,76 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-	<head>
-		<meta charset="utf-8" />
-		<title>SIR Model Simulation</title>
+    <head>
+        <meta charset="utf-8" />
+        <title>SIR Model Simulation</title>
 
-		<link rel="stylesheet" href="styles.css" />
-		<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-		<link
-			href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;500;700&display=swap"
-			rel="stylesheet"
-		/>
-		<link rel="shortcut icon" type="image/png" href="/SIRLogo.svg" />
-		<script>
-			window.addEventListener("keydown", function (e) {
-				if (e.keyCode == 32 && e.target == document.body) {
-					e.preventDefault();
-				}
-			});
-		</script>
-	</head>
+        <link rel="stylesheet" href="styles.css" />
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;500;700&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="shortcut icon" type="image/png" href="SIRLogo.svg" />
+        <script>
+            window.addEventListener("keydown", function (e) {
+                if (e.keyCode == 32 && e.target == document.body) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+    </head>
 
-	<body>
-		<nav>
-			<img src="/SIRLogo.svg" alt="SIR Logo" height="30" width="30" />
-			<h1 id="title">
-				SIR Model Simulation - the simplest epidemical compartmental
-				model
-			</h1>
-		</nav>
+    <body>
+        <nav>
+            <img src="SIRLogo.svg" alt="SIR Logo" height="30" width="30" />
+            <h1 id="title">
+                SIR Model Simulation - the simplest epidemical compartmental
+                model
+            </h1>
+        </nav>
 
-		<div id="flexcont">
-			<aside id="one">
-				<h1 id="aside-title">Live information</h1>
+        <div id="flexcont">
+            <aside id="one">
+                <h1 id="aside-title">Live information</h1>
 
-				<h4>Total people</h4>
-				<h2 id="totalPeople"></h2>
+                <h4>Total people</h4>
+                <h2 id="totalPeople"></h2>
 
-				<h4>Total healthy</h4>
-				<h2 id="healthy"></h2>
-				<h3 id="healthyCount"></h3>
+                <h4>Total healthy</h4>
+                <h2 id="healthy"></h2>
+                <h3 id="healthyCount"></h3>
 
-				<h4>Total sick</h4>
-				<h2 id="sick"></h2>
-				<h3 id="sickCount"></h3>
+                <h4>Total sick</h4>
+                <h2 id="sick"></h2>
+                <h3 id="sickCount"></h3>
 
-				<h4>Total recovered</h4>
-				<h2 id="dead"></h2>
-				<h3 id="deadCount"></h3>
+                <h4>Total recovered</h4>
+                <h2 id="dead"></h2>
+                <h3 id="deadCount"></h3>
 
-				<h4>Days since outbreak</h4>
-				<h2 id="days">0 days</h2>
-			</aside>
+                <h4>Days since outbreak</h4>
+                <h2 id="days">0 days</h2>
+            </aside>
 
-			<section id="conainer">
-				<canvas id="canv"></canvas>
-			</section>
+            <section id="conainer">
+                <canvas id="canv"></canvas>
+            </section>
 
-			<aside id="charts">
-				<div id="chart-one">
-					<canvas id="line-chart"></canvas>
-				</div>
-				<div id="chart-two">
-					<canvas id="line-chart-two"></canvas>
-				</div>
-			</aside>
-		</div>
-		<button onclick="socialDistancing()">Social Distancing</button>
-		<button onclick="stopSimulation()">Stop</button>
+            <aside id="charts">
+                <div id="chart-one">
+                    <canvas id="line-chart"></canvas>
+                </div>
+                <div id="chart-two">
+                    <canvas id="line-chart-two"></canvas>
+                </div>
+            </aside>
+        </div>
+        <button onclick="socialDistancing()">Social Distancing</button>
+        <button onclick="stopSimulation()">Stop</button>
 
-		<section>
-			<h1>What is a SIR Model?</h1>
-		</section>
-	</body>
-	<script type="text/javascript" src="simulation.js"></script>
+        <section>
+            <h1>What is a SIR Model?</h1>
+        </section>
+    </body>
+    <script type="text/javascript" src="simulation.js"></script>
 </html>
